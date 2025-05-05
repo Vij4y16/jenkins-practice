@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'USERNAME', defaultValue: 'Vijay-DevOps', description: 'Who is triggering this job?')
+        choice(name: 'ENV', choices: ['dev', 'qa', 'prod'], description: 'Select Environment')
+        booleanParam(name: 'SEND_EMAIL', defaultValue: false, description: 'Notify team?')
+    }
+
+    stages {
+        stage('Print Parameters') {
+            steps {
+                echo "Triggered by: ${params.USERNAME}"
+                echo "Selected environment: ${params.ENV}"
+            }
+        }
+        
+        
+        stage('Conditional Task') {
+            steps {
+                script {
+                    if (params.ENV == 'prod') {
+                        echo 'Deploying to Production...'
+                    } else {
+                        echo "Deploying to ${params.ENV} environment"
+                    }
+                }
+            }
+        }
+        stage('Notify Team') {
+            when {
+                expression { return params.SEND_EMAIL }
+            }
+            steps {
+                echo 'Sending email notification to the team...'
+                // Add actual mail steps if required
+            }
+        }
+    }
+}
